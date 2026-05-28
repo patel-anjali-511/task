@@ -8,7 +8,7 @@ import ActivityTile from "./ActivityTile";
 import CourseCard from "./CourseCard";
 
 const containerVariants: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 1 },
   visible: {
     opacity: 1,
     transition: {
@@ -19,7 +19,7 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 1, y: 0 },
   visible: {
     opacity: 1,
     y: 0,
@@ -53,9 +53,7 @@ export default function BentoGrid({ courses, userName, error }: BentoGridProps) 
         <HeroTile userName={userName} />
       </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <MetricsTile />
-      </motion.div>
+      <MetricsTile />
 
       {/* Row 2: Activity Chart (spans 2 cols) + Metrics overflow */}
       <motion.div

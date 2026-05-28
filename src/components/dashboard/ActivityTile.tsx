@@ -16,7 +16,10 @@ export default function ActivityTile() {
   const [activityData, setActivityData] = useState<number[][]>([]);
 
   useEffect(() => {
-    setActivityData(generateActivityData());
+    const timer = setTimeout(() => {
+      setActivityData(generateActivityData());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Only show last 20 weeks on smaller views

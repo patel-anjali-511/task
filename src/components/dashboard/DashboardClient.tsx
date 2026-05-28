@@ -18,7 +18,7 @@ export default function DashboardClient({
   userName,
   error,
 }: DashboardClientProps) {
-  const { setCourses, setUserName, setError, sidebarCollapsed } =
+  const { setCourses, setUserName, setError } =
     useDashboardStore();
 
   // Initialize store with server-fetched data
