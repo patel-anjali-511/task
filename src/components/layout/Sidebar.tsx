@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDashboardStore } from "@/store/dashboard-store";
 
@@ -13,16 +13,47 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar } = useDashboardStore();
+  const { sidebarCollapsed, toggleSidebar, mobileMenuOpen, toggleMobileMenu } = useDashboardStore();
   const [activeItem, setActiveItem] = useState("dashboard");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const effectiveCollapsed = isTablet ? true : (isMobile ? false : sidebarCollapsed);
+  const sidebarWidth = effectiveCollapsed ? 72 : 240;
 
   return (
-    <motion.nav
-      className="hidden lg:flex flex-col border-r border-white/[0.06] bg-[#08081a]/80 backdrop-blur-xl z-30"
-      animate={{ width: sidebarCollapsed ? 72 : 240 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
+    <>
+      {/* Mobile Backdrop */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={toggleMobileMenu}
+            className="fixed inset-0 z-40 bg-[#06060e]/80 backdrop-blur-sm md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <motion.nav
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/[0.06] bg-[#08081a]/95 backdrop-blur-xl shrink-0 md:relative md:translate-x-0 md:bg-[#08081a]/80 transition-transform duration-300 ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        animate={{ width: sidebarWidth }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
       {/* Logo area */}
       <div className="flex h-16 items-center gap-3 border-b border-white/[0.06] px-4">
         <motion.div
@@ -32,7 +63,7 @@ export default function Sidebar() {
           N
         </motion.div>
         <AnimatePresence>
-          {!sidebarCollapsed && (
+          {!effectiveCollapsed && (
             <motion.span
               className="text-sm font-semibold text-white whitespace-nowrap"
               initial={{ opacity: 0, x: -10 }}
@@ -93,7 +124,7 @@ export default function Sidebar() {
 
             <span className="relative z-10 text-lg">{item.icon}</span>
             <AnimatePresence>
-              {!sidebarCollapsed && (
+              {!effectiveCollapsed && (
                 <motion.span
                   className="relative z-10 whitespace-nowrap"
                   initial={{ opacity: 0, x: -10 }}
@@ -110,34 +141,37 @@ export default function Sidebar() {
       </div>
 
       {/* Collapse toggle */}
-      <div className="border-t border-white/[0.06] p-3">
-        <motion.button
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5 text-sm text-slate-400 hover:text-white transition-colors"
-          onClick={toggleSidebar}
-          whileHover={{ backgroundColor: "rgba(255,255,255,0.06)" }}
-          whileTap={{ scale: 0.97 }}
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <motion.span
-            animate={{ rotate: sidebarCollapsed ? 180 : 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      {!isTablet && (
+        <div className="border-t border-white/[0.06] p-3">
+          <motion.button
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5 text-sm text-slate-400 hover:text-white transition-colors"
+            onClick={toggleSidebar}
+            whileHover={{ backgroundColor: "rgba(255,255,255,0.06)" }}
+            whileTap={{ scale: 0.97 }}
+            aria-label={effectiveCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            ◀
-          </motion.span>
-          <AnimatePresence>
-            {!sidebarCollapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="whitespace-nowrap"
-              >
-                Collapse
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </div>
+            <motion.span
+              animate={{ rotate: effectiveCollapsed ? 180 : 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              ◀
+            </motion.span>
+            <AnimatePresence>
+              {!effectiveCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="whitespace-nowrap"
+                >
+                  Collapse
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+      )}
     </motion.nav>
+    </>
   );
 }

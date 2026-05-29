@@ -6,6 +6,11 @@ interface HeroTileProps {
   userName: string;
 }
 
+const textVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
 export default function HeroTile({ userName }: HeroTileProps) {
   const streak = 12; // Mock streak count
 
@@ -25,9 +30,7 @@ export default function HeroTile({ userName }: HeroTileProps) {
 
       <div className="relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          variants={textVariants}
           className="mb-1 text-sm font-medium text-violet-300/80"
         >
           Good to see you again
@@ -35,18 +38,14 @@ export default function HeroTile({ userName }: HeroTileProps) {
 
         <motion.h1
           className="mb-4 text-2xl font-bold text-white md:text-3xl"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          variants={textVariants}
         >
           Welcome back, {userName}! 👋
         </motion.h1>
 
         <motion.div
-          className="flex items-center gap-3"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          className="flex flex-wrap items-center gap-3"
+          variants={textVariants}
         >
           {/* Streak badge */}
           <div className="flex items-center gap-2 rounded-full bg-white/[0.08] px-4 py-2 backdrop-blur-sm">
